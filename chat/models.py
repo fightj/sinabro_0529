@@ -1,20 +1,55 @@
 from django.db import models
+from django.utils.text import slugify
 from accounts.models import User
+from board.models import Board
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import random
+import hashlib
+
 
 class Room(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     users = models.ManyToManyField(User)
+    room_board = models.OneToOneField(Board, related_name='chat_room', on_delete=models.CASCADE, null=True, blank=True)
+    pw = models.CharField(max_length=4)
+    # ...
 
-    def __str__(self):
-        return self.name
+
+from django.utils.text import slugify
+
+@receiver(post_save, sender=Board)
+def create_chat_room(sender, instance, created, **kwargs):
+    if created:
+        # 4자리 숫자 생성
+        random_number = random.randint(1000, 9999)
+        # 숫자를 문자열로 변환하여 사용
+        slug = str(random_number)
+
+        print("Creating chat room...")
+        print(f"Title: {instance.title}")
+        print(f"Slug: {slug}")
+        print(f"pw: {instance.pw}")
+
+        # 중복된 slug 값이 있는지 확인
+        existing_slugs = Room.objects.filter(slug=slug)
+        while existing_slugs.exists():
+            # 중복된 slug 값이 있다면, 다시 새로운 무작위 숫자 생성
+            random_number = random.randint(1000, 9999)
+            slug = str(random_number)
+            existing_slugs = Room.objects.filter(slug=slug)
+
+        room = Room.objects.create(name=f"{instance.title} Room", slug=slug, pw=instance.pw, room_board=instance)
+
+
 
 
 class Message(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    room = models.ForeignKey(Room, related_name='messages', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    date_added = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return (self.room.name + " - " + str(self.user.username) + " : " + str(self.message))
+    class Meta:
+        ordering = ('date_added',)

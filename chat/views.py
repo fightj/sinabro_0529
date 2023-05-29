@@ -1,32 +1,46 @@
-import string
-import random
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from django.shortcuts import render, reverse, redirect
-from django.utils.text import slugify
-from chat.models import Room
+from .models import Room, Message
+from django.shortcuts import get_object_or_404
+from board.models import Board
+@login_required
+def rooms(request):
+    rooms = Room.objects.all()
 
+    return render(request, 'chat/rooms.html', {'rooms': rooms})
 
 @login_required
-def index(request, slug):
-    room = Room.objects.get(slug=slug)
-    return render(request, 'chat/room.html', {'name': room.name, 'slug': room.slug})
+def room(request, slug):
+    room = get_object_or_404(Room, slug=slug)
+
+    if request.method == 'POST':
+        room_pw = request.POST.get('pw')
+
+        if room_pw == room.pw or room.pw is None:
+            messages = Message.objects.filter(room=room).order_by('-id')[:50][::-1]
+            return render(request, 'chat/room.html', {'room': room, 'messages': messages})
+        else:
+            board = get_object_or_404(Board, chat_room=room)
+            return render(request, 'board/board_detail.html', {'board': board, 'room_error': '비밀번호가 올바르지 않습니다.'})
+    else:
+        messages = Message.objects.filter(room=room).order_by('-id')[:50][::-1]
+        return render(request, 'chat/room.html', {'room': room, 'messages': messages})
+
 
 @login_required
 def room_create(request):
     if request.method == "POST":
         room_name = request.POST["room_name"]
-        uid = str(''.join(random.choices(string.ascii_letters + string.digits, k=4)))
-        room_slug = slugify(room_name + "_" + uid)
+        room_slug = request.POST["room_slug"]
+
+        # 중복 체크
+        if Room.objects.filter(slug=room_slug).exists():
+            return render(request, 'chat/create.html', {'error': 'Slug already exists'})
+
         room = Room.objects.create(name=room_name, slug=room_slug)
-        return redirect(reverse('chat', kwargs={'slug': room.slug}))
+        return redirect(reverse('room', kwargs={'slug': room.slug}))
     else:
         return render(request, 'chat/create.html')
 
-@login_required
-def room_join(request):
-    if request.method == "POST":
-        room_name = request.POST["room_name"]
-        room = Room.objects.get(slug=room_name)
-        return redirect(reverse('chat', kwargs={'slug': room.slug}))
-    else:
-        return render(request, 'chat/join.html')
+

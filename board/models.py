@@ -26,6 +26,7 @@ class Board(models.Model, HitCountMixin):
     hit_count_generic = GenericRelation(HitCount, object_id_field='object_pk',
                                         related_query_name='hit_count_generic_relation')
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+    pw = models.CharField(max_length=4)
 
     def get_hit_count(self):
         return self.hit_count.hits

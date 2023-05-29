@@ -39,7 +39,7 @@
     <div class="form-group" style="">
       <div class="asdf" style="margin: 10px; width: 250px; display: inline-block;">
         {% if board.image %}
-          <img src="{{ board.image.url }}" alt="{{ board.title }}" width="200dp">
+          <img src="{{ board.image.url }}" alt="{{ board.title }}" width="240dp">
         {% endif %}
       </div>
       <div class="title1" style="display: inline-block;">
@@ -51,6 +51,7 @@
             <span style="font-size: 20px; ">소개</span>
           </a>
         </div>
+
           <div style="text-align: center; border-bottom: 1.5px solid blue; padding: 15px; ">
             <a href ='/' style="text-decoration: none; color: blue; font-weight: bold;">
               <span style="font-size: 20px;">작성자와 대화</span>
@@ -110,4 +111,23 @@
     </div>
     </div>
 </div>
+{% if board.chat_room %}
+    <div style="text-align: center; border-bottom: 1.5px solid blue; border-right:1.5px solid blue;">
+        {% if board.chat_room.pw %}
+            <form method="POST" action="{% url 'room' board.chat_room.slug %}">
+                {% csrf_token %}
+                <input type="password" name="pw" placeholder="비밀번호 입력" required>
+                <button type="submit" class="btn btn-primary">채팅방으로 이동</button>
+            </form>
+            {% if room_error %}
+                <p style="color: red;">{{ room_error }}</p>
+            {% endif %}
+        {% else %}
+            <p>채팅방 이름: {{ board.chat_room.name }}</p>
+            <button type="button" class="btn btn-primary" onclick="location.href='{% url 'room' board.chat_room.slug %}'">채팅방으로 이동</button>
+        {% endif %}
+    </div>
+{% else %}
+    <p>채팅방이 없습니다.</p>
+{% endif %}
 {% endblock %}

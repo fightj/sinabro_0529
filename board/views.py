@@ -164,6 +164,7 @@ def board_posts(request):
         "category_list": category_list,
         "selected_category": selected_category,
         'username': username
+
     })
 
 

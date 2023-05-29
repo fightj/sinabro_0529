@@ -2,44 +2,77 @@
 {% block content %}
 <div class="row mt-5">
   <div class="col-12">
-    <form method="POST" action="." enctype="multipart/form-data">
-      {% csrf_token %}
-      {% for field in form %}
-      <div class="form-group">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {% if field.name == 'contents' %}
-        <textarea
-          class="form-control"
-          name="{{ field.name }}"
-          placeholder="{{ field.label }}"
-        >{{ board.contents }}</textarea>
-        {% elif field.name == 'category' %}
-        <select
-          class="form-control"
-          id="{{ field.id_for_label }}"
-          name="{{ field.name }}"
-        >
-          {% for choice in field.field.choices %}
-          <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-          {% endfor %}
-        </select>
-        {% else %}
-        <input
-          type="{{ field.field.widget.input_type }}"
-          class="form-control"
-          id="{{ field.id_for_label }}"
-          placeholder="{{ field.label }}"
-          name="{{ field.name }}"
-          value="{{ board.title }}"
-        />
+    <div class="navbar-row" style="padding: 0px 0px 0px 40px">
+          <div class="navbar-name" style="display: inline-block; ">
+              <a class="navbar-brand" href="/board/list/" style="font-size: 36px; color:blue; font-family: Gilroy; font-weight: bold; padding: 0;">
+                Sinabro
+                </a>
+
+            <div class="util" style="display: inline-block;">
+              {% if user.is_authenticated %}
+              <button type="button" class="btn " style="font-weight: bold; float:right; margin: 23px 15px;" onclick="location.href='/auth/logout/'">로그아웃</button>
+              <button type="button" class="btn "  style="margin: 23px 15px 0px 180px; float:right;" onclick="location.href='/board/my/'">My Page</button>
+              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
+              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
+              {% else %}
+              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/login/'">로그인</button>
+              <button type="button" class="btn "  style="margin: 25px 25px 25px 230px; " onclick="location.href='/board/post/'">게시글</button>
+              <button type="button" class="btn "  style="margin: 25px 20px;" onclick="location.href='/board/list'">포트폴리오</button>
+              <button type="button" class="btn " style=" margin: 23px 15px; font-weight: bold; float:right;" onclick="location.href='/auth/register/'">회원가입</button>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+  </div>
+    <section class="search" style="padding: 10px 0px 30px 0px">
+        <div class="warp" style="position:relative; display:inline-block; left: 400px">
+            <form action="{% url 'search' %}" method="GET">
+                <input type="text" style="margin:auto; display:block; height: 30px; width: 350px; padding: 15px 48px 15px 21px; border-radius: 20px; " name="keyword" class="search-keyword" placeholder="검색" autocomplete="off">
+                <input type="submit" style="position: absolute; right: 0px; top: 15px; width: 35px; height: 35px; border: none; color: transparent; background: transparent url(/media/images/filter.search.png) no-repeat center center; background-size: 24px 24px; " class="submit">
+            </form>
+        </div>
+    </section>
+  <div class="form1" style="background-color: #e6e7eb">
+    <div class="form2" style="background-color: white; width: 80%; margin: 0 auto; padding: 30px 40px 10px 40px;">
+      <form method="POST" action="." enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group" style="margin: 30px 0px 0px 0px">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.name == 'contents' %}
+          <textarea
+            class="form-control"
+            name="{{ field.name }}"
+            placeholder="{{ field.label }}"
+          >{{ board.contents }}</textarea>
+          {% elif field.name == 'category' %}
+          <select
+            class="form-control"
+            id="{{ field.id_for_label }}"
+            name="{{ field.name }}"
+          >
+            {% for choice in field.field.choices %}
+            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+            {% endfor %}
+          </select>
+          {% else %}
+          <input
+            type="{{ field.field.widget.input_type }}"
+            class="form-control"
+            id="{{ field.id_for_label }}"
+            placeholder="{{ field.label }}"
+            name="{{ field.name }}"
+            value="{{ board.title }}"
+          />
+          {% endif %}
+        </div>
+        {% if field.errors %}
+        <span style="color: red;">{{ field.errors }}</span>
         {% endif %}
-      </div>
-      {% if field.errors %}
-      <span style="color: red;">{{ field.errors }}</span>
-      {% endif %}
-      {% endfor %}
-      <button type="submit" class="btn btn-primary">글쓰기</button>
-    </form>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">글쓰기</button>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}
