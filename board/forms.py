@@ -17,9 +17,11 @@ class BoardForm(forms.Form):
     category = forms.ModelChoiceField(queryset=Category.objects.all())
     recruitment_start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="모집 시작일")
     recruitment_end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="모집 마감일")
-    pw = forms.CharField(max_length=4, label='pw', error_messages={
-        'required': '4자리 숫자를 입력해주세요.'
-    })
+    pw = forms.CharField(
+        max_length=4,
+        label='비밀번호',
+        error_messages={'required': '4자리 숫자를 입력해주세요.'}
+    )
 
     def clean(self):
         cleaned_data = super().clean()

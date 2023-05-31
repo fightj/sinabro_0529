@@ -48,6 +48,7 @@ def board_write(request):
             board.category = form.cleaned_data['category']
             board.recruitment_start_date = form.cleaned_data['recruitment_start_date']
             board.recruitment_end_date = form.cleaned_data['recruitment_end_date']
+            board.pw = form.cleaned_data['pw']
             board.save()
 
             return redirect('/board/list/')

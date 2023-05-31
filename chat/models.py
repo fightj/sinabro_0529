@@ -14,10 +14,15 @@ class Room(models.Model):
     users = models.ManyToManyField(User)
     room_board = models.OneToOneField(Board, related_name='chat_room', on_delete=models.CASCADE, null=True, blank=True)
     pw = models.CharField(max_length=4)
+
     # ...
+class one_one_Room(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+    users = models.ManyToManyField(User)
 
 
-from django.utils.text import slugify
+
 
 @receiver(post_save, sender=Board)
 def create_chat_room(sender, instance, created, **kwargs):
@@ -26,7 +31,7 @@ def create_chat_room(sender, instance, created, **kwargs):
         random_number = random.randint(1000, 9999)
         # 숫자를 문자열로 변환하여 사용
         slug = str(random_number)
-
+        pw = instance.pw
         print("Creating chat room...")
         print(f"Title: {instance.title}")
         print(f"Slug: {slug}")
@@ -40,8 +45,8 @@ def create_chat_room(sender, instance, created, **kwargs):
             slug = str(random_number)
             existing_slugs = Room.objects.filter(slug=slug)
 
-        room = Room.objects.create(name=f"{instance.title} Room", slug=slug, pw=instance.pw, room_board=instance)
-
+        room = Room.objects.create(name=f"{instance.title} Room", slug=slug, pw=pw, room_board=instance)
+        room.users.add(instance.writer)
 
 
 

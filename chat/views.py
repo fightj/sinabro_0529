@@ -4,6 +4,10 @@ from django.shortcuts import render, reverse, redirect
 from .models import Room, Message
 from django.shortcuts import get_object_or_404
 from board.models import Board
+from .models import one_one_Room
+from accounts.models import User
+import random
+
 @login_required
 def rooms(request):
     rooms = Room.objects.all()
